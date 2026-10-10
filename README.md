@@ -10,12 +10,11 @@ Themes are in progress. Screenshots will be added under each device's `screensho
 
 ## Install
 
-Requirements: macOS, a player with Rockbox already installed, and its SD card mounted.
+Requirements: macOS, a player with Rockbox already installed, and its SD card mounted. Both arguments are required: the device folder and the card's mount point (check with `ls /Volumes`).
 
 ```bash
-./install.sh hiby-r3proii                  # card at /Volumes/R3PROII
-./install.sh hiby-r3proii /Volumes/MYCARD  # different mount point
-./install.sh hiby-r3proii --dry-run        # list what would be copied
+./install.sh hiby-r3proii /Volumes/R3PROII            # install
+./install.sh hiby-r3proii /Volumes/R3PROII --dry-run  # list what would be copied
 ```
 
 The script merges the device's `.rockbox/` folder into the card's `.rockbox/` with `ditto --norsrc`, then runs `dot_clean` to remove macOS `._*` files. It never deletes anything on the card and never touches Rockbox's built-in themes or your `config.cfg`.

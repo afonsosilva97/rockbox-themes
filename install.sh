@@ -2,7 +2,7 @@
 #
 # Merge a device folder's .rockbox/ onto a mounted Rockbox SD card.
 #
-#   ./install.sh <device-folder> [card-path] [--dry-run]
+#   ./install.sh <device-folder> <card-path> [--dry-run]
 #
 # Never deletes anything on the card. Files removed from the repo stay on the
 # card until deleted by hand.
@@ -10,8 +10,8 @@
 set -euo pipefail
 
 usage() {
-  echo "Usage: $0 <device-folder> [card-path] [--dry-run]" >&2
-  echo "  e.g. $0 hiby-r3proii" >&2
+  echo "Usage: $0 <device-folder> <card-path> [--dry-run]" >&2
+  echo "  e.g. $0 hiby-r3proii /Volumes/R3PROII" >&2
   echo "       $0 hiby-r3proii /Volumes/R3PROII --dry-run" >&2
   exit 1
 }
@@ -27,18 +27,10 @@ for arg in "$@"; do
   esac
 done
 
-[[ ${#args[@]} -ge 1 && ${#args[@]} -le 2 ]] || usage
+[[ ${#args[@]} -eq 2 ]] || usage
 
 device="${args[0]%/}"
-card="${args[1]:-}"
-
-if [[ -z "$card" ]]; then
-  case "$(basename "$device")" in
-    hiby-r3proii) card="/Volumes/R3PROII" ;;
-    *) echo "No default card path for '$device'. Pass one: $0 $device /Volumes/<CARD>" >&2; exit 1 ;;
-  esac
-fi
-card="${card%/}"
+card="${args[1]%/}"
 
 src="$device/.rockbox"
 dest="$card/.rockbox"
