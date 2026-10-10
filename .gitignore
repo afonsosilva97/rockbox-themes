@@ -1,0 +1,7 @@
+.DS_Store
+._*
+reference/
+*.zip
+config.cfg
+.idea/
+CLAUDE.md
