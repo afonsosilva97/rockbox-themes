@@ -19,7 +19,6 @@ BG = (0x18, 0x14, 0x20)       # base
 OVERLAY = (0x28, 0x24, 0x38)  # status strip, play button
 ACCENT = (0xC0, 0xA4, 0xE0)   # iris
 TEXT = (0xD8, 0xD8, 0xE8)
-SUBTLE = (0x90, 0x8C, 0xA8)
 DIM = (0x68, 0x68, 0x80)
 MAGENTA = (0xFF, 0x00, 0xFF)
 
@@ -205,9 +204,12 @@ def main(rockbox):
     ], OVERLAY)
 
     # List iconset: Rockbox's 32 themeable icons, 40x24 cells stacked in enum
-    # order (apps/gui/icon.h). Only icons that carry meaning are drawn; the
-    # rest stay transparent so menus keep Iris's clean look. Glyphs sit at
-    # x 12-32, so the cell also sets the list's left margin and text gap.
+    # order (apps/gui/icon.h). Only state icons are drawn, so menus keep
+    # Iris's clean look. File-type icons stay blank on purpose: Rockbox reuses
+    # them for menu items (audio = "Database", playlist = "Playlists"). The
+    # selected-option dot shares its slot with generic submenus, so those few
+    # menu rows show it too. Glyphs sit at x 12-32, so the cell also sets the
+    # list's left margin and text gap.
     cell = (40, 24)
     # State icons get a dark halo (BG colour): invisible on the background,
     # but it keeps the lavender glyph visible on the lavender selection bar.
@@ -217,12 +219,6 @@ def main(rockbox):
     down = [(22, 21), (16, 14), (28, 14)]
     dot = [(BG, [circle(22, 12, 7)]), (ACCENT, [circle(22, 12, 5)])]
     icons = {
-        0: [(SUBTLE, [circle(18, 17.5, 3.6), rect(20.6, 4, 22.4, 17.5),     # audio file
-                      polygon([(22.4, 4), (28.5, 6.5), (28.5, 10), (22.4, 7.5)])])],
-        1: [(SUBTLE, [stroke([(13, 7.5), (19, 7.5), (21, 9.5), (31, 9.5),   # folder
-                              (31, 19), (13, 19), (13, 7.5)], 2)])],
-        2: [(SUBTLE, [stroke([(13, 7), (31, 7)], 2), stroke([(13, 12), (31, 12)], 2),  # playlist
-                      stroke([(13, 17), (25, 17)], 2)])],
         3: dot,                                                             # cursor (selected folder)
         12: [(BG, [ring(1.6, 7.5)]), (ACCENT, [ring(3.6, 5.5)])],           # queued
         13: [(BG, [polygon(up), polygon(down), stroke(up + up[:1], 4), stroke(down + down[:1], 4)]),
