@@ -74,3 +74,6 @@ dot_clean -m "$card"
 
 echo "Theme files now on the card ($dest/themes):"
 ls "$dest/themes"
+echo
+echo "Eject the card. If you updated a theme that's already selected, restart the"
+echo "player: Rockbox keeps the old skin files loaded until it reboots."

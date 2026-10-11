@@ -31,7 +31,7 @@ The script merges the device's `.rockbox/` folder into the card's `.rockbox/` wi
 
 **Note:** because it only merges, files removed or renamed in this repo are not removed from the card. Delete stale files on the card by hand if needed.
 
-Then eject the card, put it in the player and go to **Settings → Theme Settings → Browse Theme Files** to select a theme. If a theme breaks the UI, select `cabbiev2` or `rockbox_failsafe` there to recover.
+Then eject the card, put it in the player and go to **Settings → Theme Settings → Browse Theme Files** to select a theme. **When updating a theme that's already selected, restart the player:** Rockbox keeps the previously loaded skin files in memory, and selecting the same theme again doesn't reload them. If a theme breaks the UI, select `cabbiev2` or `rockbox_failsafe` there to recover.
 
 ## Developing themes
 

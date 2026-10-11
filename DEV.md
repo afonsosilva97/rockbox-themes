@@ -53,6 +53,7 @@ Options:
    ```bash
    ./install.sh hiby-r3proii /Volumes/R3PROII
    ```
+   Then eject and **restart the player**. Re-selecting a theme that's already active doesn't reload changed skin files; a restart does.
 
 ## What needs rebuilding when
 
