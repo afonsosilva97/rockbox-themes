@@ -12,7 +12,7 @@ How to edit, check and preview themes on a Mac without copying them to the playe
 | `install.sh` | yes | Copies a device's themes onto a card (or the simulator's card) |
 | `simulate.sh` | yes | Opens the simulator with a device's themes |
 | `tools/` | yes | Setup and checking scripts |
-| `reference/` | no | Local build of Rockbox's tools and simulator, Inter, upstream themes (about 1 GB) |
+| `reference/` | no | Local build of Rockbox's tools and simulator, Inter, upstream themes |
 
 `reference/` is rebuilt from scratch by `tools/setup.sh`, so it never needs backing up.
 
