@@ -1,0 +1,60 @@
+diff --git a/firmware/target/hosted/sdl/button-sdl.c b/firmware/target/hosted/sdl/button-sdl.c
+index a329bb6..4ced123 100644
+--- a/firmware/target/hosted/sdl/button-sdl.c
++++ b/firmware/target/hosted/sdl/button-sdl.c
+@@ -21,6 +21,7 @@
+ #include <math.h>
+ #include <stdlib.h>         /* EXIT_SUCCESS */
+ #include <stdio.h>
++#include <string.h>
+ #include "sim-ui-defines.h"
+ #ifdef HAVE_REMOTE_LCD
+ #include "lcd-remote.h"
+@@ -655,10 +656,47 @@ static void button_event(int key, bool pressed)
+     else
+         btn &= ~new_btn;
+ }
++#ifdef HAVE_TOUCHSCREEN
++/* Local test hook (rockbox-themes): replay a script of timed touch events
++ * and screendumps from $RB_TEST_SCRIPT, e.g.
++ *   "3000 down 240 110;3100 up;5000 dump;6000 quit"
++ * Times are milliseconds since boot. */
++static void test_script_poll(void)
++{
++    static const char *s = NULL;
++    static bool init = false;
++    if (!init) {
++        init = true;
++        s = getenv("RB_TEST_SCRIPT");
++    }
++    while (s && *s) {
++        long ms; char op[8]; int n = 0, x = 0, y = 0;
++        if (sscanf(s, " %ld %7[a-z]%n", &ms, op, &n) != 2) { s = NULL; return; }
++        if (current_tick * 1000L / HZ < ms)
++            return;
++        const char *args = s + n;
++        if (!strcmp(op, "down")) {
++            sscanf(args, " %d %d", &x, &y);
++            mouse_coords = (x << 16) | y;
++            btn |= BUTTON_TOUCHSCREEN;
++        } else if (!strcmp(op, "up")) {
++            btn &= ~BUTTON_TOUCHSCREEN;
++        } else if (!strcmp(op, "dump")) {
++            sim_trigger_screendump();
++        } else if (!strcmp(op, "quit")) {
++            exit(0);
++        }
++        s = strchr(s, ';');
++        if (s) s++;
++    }
++}
++#endif
++
+ #if defined(HAVE_BUTTON_DATA)
+ int button_read_device(int* data)
+ {
+ #if defined(HAVE_TOUCHSCREEN)
++    test_script_poll();
+     *data = mouse_coords;
+ #else
+     (void) *data;   /* suppress compiler warnings */
