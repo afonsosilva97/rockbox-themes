@@ -10,8 +10,8 @@
 #   574-609  seek bar and times
 #   624-712  shuffle, previous, play/pause, next, repeat
 #
-# Lock: long-press the header to lock the touchscreen. The area below the
-# header then shows a clock and the current track; long-press it to unlock.
+# Lock: Rockbox's key lock (power + volume up) shows a lock screen below the
+# header. Same design as the .sbs lock screen, which covers the menus.
 #
 # Fonts (same slots as the .sbs)
 %Fl(2,20-Inter-SemiBold.fnt)
@@ -34,15 +34,14 @@
 # don't respond on this screen. So the WPS keeps its own copy of the header:
 # a touch viewport first, then the header drawn over the area it clears.
 #
-# header always; below it, the lock screen or now playing
-%Vd(hdt)%Vd(hds)%Vd(hdd)%Vd(hdv)%Vd(hdc)%Vd(hdb)%Vd(hdl)%Vd(hdh)%Vd(hdn)
+# header always; below it the lock screen or now playing
+%Vd(hdt)%Vd(hds)%Vd(hdd)%Vd(hdv)%Vd(hdc)%Vd(hdp)%Vd(hdb)%Vd(hdl)%Vd(hdh)%Vd(hdn)
 %?mh<%Vd(lkbg)%Vd(lkc)%Vd(lkd)%Vd(lkh)%Vd(lkb)%Vd(lkt)%Vd(lka)%Vd(lke)%Vd(lkp)%Vd(lkr)|%Vd(npbg)%Vd(npa)%Vd(npt)%Vd(npr)%Vd(npl)%Vd(nps)%Vd(npp)%Vd(npe)%Vd(npv)%Vd(npc)%Vd(npn)%Vd(npx)%Vd(nph)>
 #
 # ---------------- Header (mirrors the .sbs) ----------------
-# tap the status strip or title bar to open the main menu; hold to lock
+# tap the status strip or title bar to open the main menu
 %Vl(hdt,0,0,480,80,-)
 %Vb(181420)
-%T(0,0,-,-,lock,long_press)
 %T(0,0,-,-,menu)
 #
 %Vl(hds,0,0,480,36,-)
@@ -53,15 +52,20 @@
 %Vb(282438)
 %?if(%mp, =, 3)<%xd(dot,2)|%?if(%mp, >, 1)<%xd(dot,1)|%xd(dot,3)>>
 #
-%Vl(hdv,312,15,56,6,-)
+%Vl(hdv,216,15,56,6,-)
 %Vf(c0a4e0)
 %Vb(403c50)
 %pv(0,0,56,6,noborder)
 #
-%Vl(hdc,376,7,58,22,2)
+%Vl(hdc,284,7,88,22,2)
 %Vf(908ca8)
 %Vb(282438)
 %ar%?cf<%cH|%cl>:%cM
+#
+%Vl(hdp,382,7,52,22,2)
+%Vf(908ca8)
+%Vb(282438)
+%ar%bl%%
 #
 %Vl(hdb,442,11,28,14,-)
 %Vf(908ca8)
@@ -78,7 +82,7 @@
 %Vl(hdh,20,47,280,22,2)
 %Vf(908ca8)
 %Vb(181420)
-%alN O W  P L A Y I N G
+%al%?mh<L O C K E D|N O W  P L A Y I N G>
 #
 %Vl(hdn,320,46,140,25,3)
 %Vf(908ca8)
@@ -86,7 +90,7 @@
 %ar%pp / %pe
 #
 # ---------------- Now playing ----------------
-# background: clears what the lock screen left behind when it's unlocked
+# background: clears what the lock screen left behind after unlocking
 %Vl(npbg,0,80,480,640,-)
 %Vb(181420)
 #
@@ -169,10 +173,10 @@
 %T(0,0,-,-,repmode)
 #
 # ---------------- Lock screen ----------------
-# background and unlock target: long-press anywhere below the header
+# Shown while Rockbox's key lock is on (power + volume up), on every screen.
+# %mh is true for key lock on this player (it has no hold switch).
 %Vl(lkbg,0,80,480,640,-)
 %Vb(181420)
-%T(0,0,-,-,lock,long_press)
 #
 %Vl(lkc,0,170,480,143,5)
 %Vf(d8d8e8)
@@ -187,7 +191,7 @@
 %Vl(lkh,0,480,480,25,3)
 %Vf(686880)
 %Vb(181420)
-%acHold to unlock
+%acPower + Vol+ to unlock
 #
 # bottom card: track info and seek bar
 %Vl(lkb,0,560,480,160,-)

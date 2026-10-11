@@ -6,30 +6,44 @@
 # Iris's sidebar becomes a status strip; its topbar becomes the title bar.
 #
 # Layout
-#   0-36    status strip: playback dot, volume, clock, battery
+#   0-36    status strip: playback dot, volume, clock, battery % and icon
 #   36-80   title bar: screen title, now-playing info or playlist position
-#   80-720  lists
-#
-# The lock screen lives in the .wps: this player has no hold switch, and the
-# touchscreen lock is only visible to the skin that defines it.
+#   80-720  lists, or the lock screen while Rockbox's key lock is on
 #
 # Fonts
 %Fl(2,20-Inter-SemiBold.fnt)
 %Fl(3,24-Inter-Regular.fnt)
+%Fl(4,30-Inter-Medium.fnt)
+%Fl(5,140-Inter-SemiBold.fnt)
 #
 # playback dot: 1 playing circle, 2 paused solid square, 3 stopped hollow square
 %xl(dot,dot.bmp,0,0,3)
 #
+# key lock: hide the list and show the lock screen. On Now Playing the .wps
+# draws its own copy (one skin per screen avoids redraw races on unlock).
+%?mh<%VI(h)|%VI(m)>
+%?mh<%?if(%cs, =, 2)<|%Vd(lkbg)%Vd(lkc)%Vd(lkd)%Vd(lkh)%?if(%mp, >, 1)<%Vd(lkb)%Vd(lkt)%Vd(lka)%Vd(lke)%Vd(lkp)%Vd(lkr)>>>
+#
 # title bar contents per screen
-%?if(%cs, =, 2)<%Vd(tbnp)|%Vd(tbk)%?if(%mp, >, 1)<%Vd(tbsa)%Vd(tbst)>>
+%?if(%cs, =, 2)<%Vd(tbnp)|%Vd(tbk)%?if(%mp, >, 1)<%Vd(tbp)%Vd(tbsa)%Vd(tbst)|%Vd(tbk2)>>
 #
 # ---------------- Header touch ----------------
-# In menus, tap the title bar to go back. Defined first: viewports are cleared
-# on a full redraw, so everything drawn after this paints over that area.
-# (Base skin touch regions don't respond on the WPS, which has its own header.)
-%Vl(tbk,0,36,480,43,-)
+# In menus: tap the screen name to go back; tap the playing track's name or
+# cover to open Now Playing (the whole bar goes back when nothing plays).
+# Defined first: viewports are cleared on a full redraw, so everything drawn
+# after these paints over that area. (Base skin touch regions don't respond
+# on the WPS, which has its own header.)
+%Vl(tbk,0,36,232,43,-)
 %Vb(181420)
 %T(0,0,-,-,cancel)
+#
+%Vl(tbk2,232,36,248,43,-)
+%Vb(181420)
+%T(0,0,-,-,cancel)
+#
+%Vl(tbp,232,36,248,43,-)
+%Vb(181420)
+%T(0,0,-,-,resumeplayback)
 #
 # ---------------- Status strip ----------------
 %V(0,0,480,36,-)
@@ -42,16 +56,22 @@
 %?if(%mp, =, 3)<%xd(dot,2)|%?if(%mp, >, 1)<%xd(dot,1)|%xd(dot,3)>>
 #
 # volume bar
-%V(312,15,56,6,-)
+%V(216,15,56,6,-)
 %Vf(c0a4e0)
 %Vb(403c50)
 %pv(0,0,56,6,noborder)
 #
-# clock HH:MM
-%V(376,7,58,22,2)
+# clock HH:MM (room for "12:45 PM")
+%V(284,7,88,22,2)
 %Vf(908ca8)
 %Vb(282438)
 %ar%?cf<%cH|%cl>:%cM
+#
+# battery percentage
+%V(382,7,52,22,2)
+%Vf(908ca8)
+%Vb(282438)
+%ar%bl%%
 #
 # battery pill
 %V(442,11,28,14,-)
@@ -71,7 +91,7 @@
 %V(20,47,280,22,2)
 %Vf(908ca8)
 %Vb(181420)
-%al%?cs<R O C K B O X|N O W  P L A Y I N G|R E C O R D I N G|F M  R A D I O|P L A Y L I S T|S E T T I N G S|F I L E S|D A T A B A S E|P L U G I N S|Q U I C K  S E T T I N G S|P I T C H|%Lt|P L A Y L I S T S|P L U G I N|M E N U|S Y S T E M|T I M E  &  D A T E|B O O K M A R K S|S H O R T C U T S|T R A C K  I N F O|U S B|%Lt>
+%al%?mh<L O C K E D|%?cs<R O C K B O X|N O W  P L A Y I N G|R E C O R D I N G|F M  R A D I O|P L A Y L I S T|S E T T I N G S|F I L E S|D A T A B A S E|P L U G I N S|Q U I C K  S E T T I N G S|P I T C H|%Lt|P L A Y L I S T S|P L U G I N|M E N U|S Y S T E M|T I M E  &  D A T E|B O O K M A R K S|S H O R T C U T S|T R A C K  I N F O|U S B|%Lt>>
 #
 # title bar: playlist position on the WPS. The WPS draws the same in its own
 # header copy; both skins redraw independently, so they must match.
@@ -93,6 +113,64 @@
 %ar%?it<%ss(0,16,%it)%?ss(16,1,%it)<…|>|%ss(0,16,%fn)%?ss(16,1,%fn)<…|>>
 #
 # ---------------- Lists ----------------
-%Vi(-,0,80,480,640,-)
+%Vi(m,0,80,480,640,-)
 %Vf(d8d8e8)
 %Vb(181420)
+#
+# collapsed 1x1 stub used while locked
+%Vi(h,0,80,1,1,-)
+%Vf(181420)
+%Vb(181420)
+#
+# ---------------- Lock screen ----------------
+# Shown in menus while Rockbox's key lock is on (power + volume up). %mh is
+# true for key lock on this player (it has no hold switch). The .wps has an
+# identical copy for Now Playing: keep both in sync.
+%Vl(lkbg,0,80,480,640,-)
+%Vb(181420)
+#
+%Vl(lkc,0,170,480,143,5)
+%Vf(d8d8e8)
+%Vb(181420)
+%ac%?cf<%cH|%cl>:%cM
+#
+%Vl(lkd,0,322,480,25,3)
+%Vf(908ca8)
+%Vb(181420)
+%ac%ca %cd %cb
+#
+%Vl(lkh,0,480,480,25,3)
+%Vf(686880)
+%Vb(181420)
+%acPower + Vol+ to unlock
+#
+# bottom card: track info and seek bar, while something is playing
+%Vl(lkb,0,560,480,160,-)
+%Vb(201c30)
+%dr(0,0,480,160,201c30)
+%dr(0,0,480,1,282438)
+#
+%Vl(lkt,32,584,416,32,4)
+%Vf(d8d8e8)
+%Vb(201c30)
+%s%al%?it<%it|%fn>
+#
+%Vl(lka,32,620,416,25,3)
+%Vf(908ca8)
+%Vb(201c30)
+%s%al%ia%?id< — %id|>
+#
+%Vl(lke,32,664,72,25,3)
+%Vf(686880)
+%Vb(201c30)
+%al%pc
+#
+%Vl(lkp,112,675,256,4,-)
+%Vf(c0a4e0)
+%Vb(403c50)
+%pb(0,0,256,4,noborder,notouch)
+#
+%Vl(lkr,376,664,72,25,3)
+%Vf(686880)
+%Vb(201c30)
+%ar%pt

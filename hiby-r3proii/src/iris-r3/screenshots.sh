@@ -53,8 +53,8 @@ run() {
 # Main menu → Files → Music → <artist row y> → album → first track
 open_track() { echo "5000 down 100 110;5100 up;6500 down 100 110;6600 up;8000 down 100 $1;8100 up;9500 down 100 110;9600 up;11000 down 100 110;11100 up"; }
 
-# Now Playing; tap the header for the menu; back via "Now Playing"; hold the header to lock
-run "$(open_track 110);14000 dump;14500 down 240 20;14600 up;16000 dump;16500 down 100 230;16600 up;18000 down 240 40;20000 up;21500 dump;22500 quit" \
+# Now Playing; tap the header for the menu; back via "Now Playing"; key lock (power, then + vol up)
+run "$(open_track 110);14000 dump;14500 down 240 20;14600 up;16000 dump;16500 down 100 230;16600 up;18000 keys 1;18300 keys 11;18600 keys 0;20500 dump;21500 quit" \
   iris-r3 iris-r3-menu iris-r3-lock
 # Track without album art (second artist folder)
 run "$(open_track 170);14000 dump;15000 quit" iris-r3-no-art

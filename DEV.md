@@ -85,7 +85,7 @@ cd reference/rockbox/build-sim
 RB_TEST_SCRIPT="5000 down 100 110;5100 up;7000 dump;8000 quit" ./rockboxui --nobackground
 ```
 
-Each step is `<milliseconds since start> <action>`, separated by `;`. Actions are `down <x> <y>`, `up`, `dump` (screenshot) and `quit`. Coordinates are screen pixels. Leave about five seconds for the simulator to start (the first start after a rebuild is the slowest) and a second or two after each tap for the screen to settle. With `--nobackground` the window shows only the screen, so window and screen coordinates match. This is how screens get checked without clicking through them. `hiby-r3proii/src/iris-r3/screenshots.sh` uses it to regenerate iris-r3's screenshots and re-embed them in `previews/iris-r3.html`.
+Each step is `<milliseconds since start> <action>`, separated by `;`. Actions are `down <x> <y>`, `up`, `keys <hex>` (hold hardware buttons; `0` releases), `dump` (screenshot) and `quit`. On the R3 Pro II, power is `1` and volume up `10`, so key lock is `keys 1;keys 11;keys 0` a few hundred milliseconds apart. Coordinates are screen pixels. Leave about five seconds for the simulator to start (the first start after a rebuild is the slowest) and a second or two after each tap for the screen to settle. With `--nobackground` the window shows only the screen, so window and screen coordinates match. This is how screens get checked without clicking through them. `hiby-r3proii/src/iris-r3/screenshots.sh` uses it to regenerate iris-r3's screenshots and re-embed them in `previews/iris-r3.html`.
 
 ## Rockbox's build on macOS
 
@@ -105,6 +105,7 @@ Things that pass `checkwps` but go wrong on the screen. All of them came up whil
 - **Viewports are cleared on a full redraw.** Every visible viewport, apart from the default one, is filled with its background colour in the order it's defined. An invisible touch viewport wipes whatever was drawn before it under the same area. Define touch and background viewports first, then draw over them.
 - **Touch regions only work inside their own viewport.** A region larger than its viewport is cut off, and regions in the `.wps` default viewport don't respond. To make a bigger tap target, make the viewport bigger.
 - **Base skin (`.sbs`) touch regions don't respond on Now Playing.** Anything you can tap on Now Playing must be in the `.wps`. The `.sbs` and `.wps` redraw independently, so if both draw the same area (iris-r3's header), they must draw the same thing.
-- **The R3 Pro II has no hold switch.** `%mh` is only true for a touchscreen lock set by a `lock` touch action, and only in the skin that defines it. A lock screen in the `.sbs` never appears.
+- **`%mh` on the R3 Pro II** (no hold switch) is true while Rockbox's key lock is on (power + volume up), in every skin. It's also true, in the `.wps` only, for a skin touch lock set by a `lock` touch action. iris-r3 uses only key lock, so its lock screen and hint match what unlocks it.
+- **Don't let two skins draw the same area across a state change.** When the lock lifted, the `.sbs` lock screen and the `.wps` redrew independently and left a half-drawn Now Playing. iris-r3 draws the lock screen in the `.wps` on Now Playing and in the `.sbs` only in menus.
 - **`list padding` is the total extra row height**, not padding per side. On a 32 px font, 28 gives 60 px rows. It's a global setting, so it stays when switching to a theme that doesn't set it.
 - **`statusbar` and `ui viewport`** in a `.cfg` only shape Rockbox's built-in bar, which isn't used when the theme has a `.sbs`.
