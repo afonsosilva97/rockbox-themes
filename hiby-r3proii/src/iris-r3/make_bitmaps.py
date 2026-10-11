@@ -3,9 +3,11 @@
 
 Usage: python3 make_bitmaps.py <device-folder>/.rockbox
 
-Shapes are rasterised with 4x4 supersampling and pre-blended onto the solid
-background they sit on, so no transparency is needed. Magenta (FF00FF) is
-Rockbox's transparent colour and is only used for the blank iconset.
+Shapes are rasterised with 4x4 supersampling. Skin bitmaps are pre-blended
+onto the solid background they sit on and saved as 8-bit palette BMPs. List
+icons can sit on the background or on the lavender selection bar, so they
+are 32-bit BMPs with an alpha channel. Magenta (FF00FF) is Rockbox's
+transparent colour and is only used for the blank viewers iconset.
 """
 import math
 import os
@@ -17,6 +19,7 @@ BG = (0x18, 0x14, 0x20)       # base
 OVERLAY = (0x28, 0x24, 0x38)  # status strip, play button
 ACCENT = (0xC0, 0xA4, 0xE0)   # iris
 TEXT = (0xD8, 0xD8, 0xE8)
+SUBTLE = (0x90, 0x8C, 0xA8)
 DIM = (0x68, 0x68, 0x80)
 MAGENTA = (0xFF, 0x00, 0xFF)
 
@@ -107,6 +110,43 @@ def render(size, layers, bg):
     return rows
 
 
+def write_bmp32(path, width, height, rows):
+    """rows: top first, each a list of (r, g, b, a). 32-bit BMP with alpha."""
+    data = bytearray()
+    for row in reversed(rows):
+        for r, g, b, a in row:
+            data += bytes((b, g, r, a))
+    header = struct.pack("<2sIHHI", b"BM", 54 + len(data), 0, 0, 54)
+    info = struct.pack("<IiiHHIIiiII", 40, width, height, 1, 32, 0, len(data), 2835, 2835, 0, 0)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "wb") as f:
+        f.write(header + info + data)
+
+
+def render_rgba(size, layers):
+    """Like render(), but over transparency: returns (r, g, b, a) pixels."""
+    w, h = size
+    rows = []
+    for py in range(h):
+        row = []
+        for px in range(w):
+            r = g = b = 0.0
+            alpha = 0.0
+            for fill, shapes in layers:
+                hits = sum(any(s(px + (sx + 0.5) / SS, py + (sy + 0.5) / SS) for s in shapes)
+                           for sy in range(SS) for sx in range(SS))
+                if hits:
+                    a = hits / (SS * SS)
+                    out = a + alpha * (1 - a)
+                    r = (fill[0] * a + r * alpha * (1 - a)) / out
+                    g = (fill[1] * a + g * alpha * (1 - a)) / out
+                    b = (fill[2] * a + b * alpha * (1 - a)) / out
+                    alpha = out
+            row.append((round(r), round(g), round(b), round(alpha * 255)))
+        rows.append(row)
+    return rows
+
+
 def strip(path, size, frames, bg):
     """Stack several frames vertically into one subimage strip."""
     rows = []
@@ -164,9 +204,40 @@ def main(rockbox):
         [(ACCENT, [rect(0, 0, 12, 12)]), (OVERLAY, [rect(2, 2, 10, 10)])],
     ], OVERLAY)
 
-    # Blank iconset: indents list rows. 32 themeable icons, 16x24 each
-    write_bmp(os.path.join(rockbox, "icons", "iris-r3-blank.bmp"), 16, 24 * 32,
-              [[MAGENTA] * 16 for _ in range(24 * 32)])
+    # List iconset: Rockbox's 32 themeable icons, 40x24 cells stacked in enum
+    # order (apps/gui/icon.h). Only icons that carry meaning are drawn; the
+    # rest stay transparent so menus keep Iris's clean look. Glyphs sit at
+    # x 12-32, so the cell also sets the list's left margin and text gap.
+    cell = (40, 24)
+    # State icons get a dark halo (BG colour): invisible on the background,
+    # but it keeps the lavender glyph visible on the lavender selection bar.
+    def ring(r_in, r_out):
+        return lambda x, y: r_in ** 2 <= (x - 22) ** 2 + (y - 12) ** 2 <= r_out ** 2
+    up = [(22, 3), (16, 10), (28, 10)]
+    down = [(22, 21), (16, 14), (28, 14)]
+    dot = [(BG, [circle(22, 12, 7)]), (ACCENT, [circle(22, 12, 5)])]
+    icons = {
+        0: [(SUBTLE, [circle(18, 17.5, 3.6), rect(20.6, 4, 22.4, 17.5),     # audio file
+                      polygon([(22.4, 4), (28.5, 6.5), (28.5, 10), (22.4, 7.5)])])],
+        1: [(SUBTLE, [stroke([(13, 7.5), (19, 7.5), (21, 9.5), (31, 9.5),   # folder
+                              (31, 19), (13, 19), (13, 7.5)], 2)])],
+        2: [(SUBTLE, [stroke([(13, 7), (31, 7)], 2), stroke([(13, 12), (31, 12)], 2),  # playlist
+                      stroke([(13, 17), (25, 17)], 2)])],
+        3: dot,                                                             # cursor (selected folder)
+        12: [(BG, [ring(1.6, 7.5)]), (ACCENT, [ring(3.6, 5.5)])],           # queued
+        13: [(BG, [polygon(up), polygon(down), stroke(up + up[:1], 4), stroke(down + down[:1], 4)]),
+             (ACCENT, [polygon(up), polygon(down)])],                       # moving
+        19: dot,                                                            # submenu / selected option
+    }
+    rows = []
+    for i in range(32):
+        rows += render_rgba(cell, icons.get(i, []))
+    write_bmp32(os.path.join(rockbox, "icons", "iris-r3-icons.bmp"), cell[0], cell[1] * 32, rows)
+
+    # Viewers iconset (file types opened by plugins): blank, same cell width
+    # so every list row's text lines up.
+    write_bmp(os.path.join(rockbox, "icons", "iris-r3-viewers.bmp"), cell[0], cell[1] * 32,
+              [[MAGENTA] * cell[0] for _ in range(cell[1] * 32)])
 
 
 if __name__ == "__main__":
