@@ -80,16 +80,17 @@
 %Vb(181420)
 %ar%pp / %pe
 #
-# title bar: now-playing info and album thumb in menus
+# title bar: playing track's title (capped at 16 characters, no scrolling)
+# and album thumb in menus
 %Vl(tbsa,436,46,24,24,-)
 %Vb(181420)
 %Cl(0,0,24,24,c,c)
 %Cd
 #
-%Vl(tbst,300,46,128,25,3)
+%Vl(tbst,232,46,196,25,3)
 %Vf(908ca8)
 %Vb(181420)
-%s%ar%?it<%it|%fn>%?ia< — %ia|>
+%ar%?it<%ss(0,16,%it)%?ss(16,1,%it)<…|>|%ss(0,16,%fn)%?ss(16,1,%fn)<…|>>
 #
 # ---------------- Lists ----------------
 %Vi(-,0,80,480,640,-)
