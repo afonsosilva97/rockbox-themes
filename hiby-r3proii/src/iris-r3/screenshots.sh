@@ -12,7 +12,10 @@
 #   iris-r3-menu.png    main menu while playing
 #   iris-r3-lock.png    lock screen
 # The taps assume iris-r3's layout (60 px list rows from y=80) and the test
-# music from tools/make-test-music.py. The simulator window opens briefly.
+# music from tools/make-test-music.py. If reference/test-cover.{jpg,jpeg,png}
+# exists it's used as the album cover (it stays out of git; only the
+# screenshots show it).
+# The simulator window opens briefly.
 
 set -euo pipefail
 
@@ -28,8 +31,9 @@ out="$device/screenshots"
 # Fresh copy of the theme and test music, so the taps land where expected
 "$repo/install.sh" "$device" "$disk" > /dev/null
 cp "$device/.rockbox/themes/iris-r3.cfg" "$disk/.rockbox/config.cfg"
-rm -rf "$disk/Music"
-python3 -I "$repo/tools/make-test-music.py" "$disk" > /dev/null
+cover=()
+for f in "$work"/test-cover.{jpg,jpeg,png}; do [[ -f "$f" ]] && cover=("$f") && break; done
+python3 -I "$repo/tools/make-test-music.py" "$disk" ${cover[@]+"${cover[@]}"} > /dev/null
 
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
@@ -51,13 +55,14 @@ run() {
 }
 
 # Main menu → Files → Music → <artist row y> → album → first track
+# Music folders sort as: No Art (row y=110), Sade (170), Test (230)
 open_track() { echo "5000 down 100 110;5100 up;6500 down 100 110;6600 up;8000 down 100 $1;8100 up;9500 down 100 110;9600 up;11000 down 100 110;11100 up"; }
 
 # Now Playing; tap the header for the menu; back via "Now Playing"; key lock (power, then + vol up)
-run "$(open_track 110);14000 dump;14500 down 240 20;14600 up;16000 dump;16500 down 100 230;16600 up;18000 keys 1;18300 keys 11;18600 keys 0;20500 dump;21500 quit" \
+run "$(open_track 170);14000 dump;14500 down 240 20;14600 up;16000 dump;16500 down 100 230;16600 up;18000 keys 1;18300 keys 11;18600 keys 0;20500 dump;21500 quit" \
   iris-r3 iris-r3-menu iris-r3-lock
-# Track without album art (second artist folder)
-run "$(open_track 170);14000 dump;15000 quit" iris-r3-no-art
+# Track without album art (first artist folder)
+run "$(open_track 110);14000 dump;15000 quit" iris-r3-no-art
 echo "Screenshots written to $out"
 
 # Re-embed in the preview page, in the order its figures appear

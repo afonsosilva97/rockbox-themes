@@ -75,7 +75,7 @@ The simulator itself never needs rebuilding for theme changes. It reads the them
 - **F5** saves a screenshot to `simdisk/` as `dump <date>.bmp`.
 - Naming a theme selects it by copying its `.cfg` over the simulator's settings file. Leave the theme off to keep the simulator's current settings.
 - Settings you change in the simulator stay in `simdisk/.rockbox/config.cfg`. They never touch your player.
-- Test tracks are under Files → Music: an album with cover art (one title is long enough to scroll) and a track without cover art. They're silent.
+- Test tracks are under Files → Music: Sade / Love Deluxe with cover art, a track without cover art, and one with a title long enough to scroll. They're silent. Put an image at `reference/test-cover.jpg` (or `.jpeg`/`.png`) to use it as the album cover in screenshots.
 
 ### Scripted runs
 

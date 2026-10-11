@@ -1,16 +1,22 @@
 #!/usr/bin/env python3
 """Create a small silent test library on a (simulated) SD card.
 
-Usage: python3 make-test-music.py <card-root>
+Usage: python3 make-test-music.py <card-root> [cover-image]
 
-Writes tagged WAV files (8 kHz, silent) under <card-root>/Music: one album
-with cover art and a long title that has to scroll, and one track without
-cover art. Rockbox reads WAV tags from the LIST/INFO chunk and picks up
-cover.bmp as album art (as a BMP, only the name "cover" is recognised).
+Writes tagged WAV files (8 kHz, silent) under <card-root>/Music:
+  Sade/Love Deluxe     album with cover art ("Like a Tattoo" is the main track)
+  No Art/Untitled      a track without cover art
+  Test/Long Titles     a title long enough to have to scroll
+Rockbox reads WAV tags from the LIST/INFO chunk and picks up cover.bmp as
+album art (as a BMP, only the name "cover" is recognised). If [cover-image]
+is given (any format macOS `sips` reads), it's converted to that cover;
+otherwise an abstract cover is generated.
 """
 import math
 import os
+import shutil
 import struct
+import subprocess
 import sys
 
 
@@ -58,21 +64,33 @@ def write_cover(path, size=500):
         f.write(header + info + data)
 
 
-def main(root):
-    album = os.path.join(root, "Music", "Frank Ocean", "Blonde")
-    write_wav(os.path.join(album, "01 Pink + White.wav"), 244, "Pink + White", "Frank Ocean", "Blonde", 1)
-    write_wav(os.path.join(album, "02 Long title.wav"), 300,
-              "A Really Long Track Title That Should Scroll Across The Whole Screen",
-              "Frank Ocean", "Blonde", 2)
-    write_wav(os.path.join(album, "03 Nights.wav"), 307, "Nights", "Frank Ocean", "Blonde", 3)
-    write_cover(os.path.join(album, "cover.bmp"))
+def main(root, cover_image=None):
+    music = os.path.join(root, "Music")
+    shutil.rmtree(music, ignore_errors=True)
 
-    no_art = os.path.join(root, "Music", "No Art", "Untitled")
-    write_wav(os.path.join(no_art, "01 No Album Art.wav"), 180, "No Album Art Here", "Test Artist", "Untitled", 1)
-    print(f"Test music written to {os.path.join(root, 'Music')}")
+    album = os.path.join(music, "Sade", "Love Deluxe")
+    for number, title, seconds in [(4, "Like a Tattoo", 218), (5, "Kiss of Life", 330), (6, "Cherish the Day", 336)]:
+        write_wav(os.path.join(album, f"{number:02d} {title}.wav"), seconds, title, "Sade", "Love Deluxe", number)
+    cover = os.path.join(album, "cover.bmp")
+    if cover_image:
+        # 24-bit BMP, at most 500 px (never upscaled): Rockbox scales it to the skin's art size
+        size = subprocess.run(["sips", "-g", "pixelWidth", "-g", "pixelHeight", cover_image],
+                              check=True, capture_output=True, text=True).stdout.split()
+        resize = ["-Z", "500"] if max(int(size[-3]), int(size[-1])) > 500 else []
+        subprocess.run(["sips", "-s", "format", "bmp", *resize, cover_image, "--out", cover],
+                       check=True, stdout=subprocess.DEVNULL)
+    else:
+        write_cover(cover)
+
+    write_wav(os.path.join(music, "No Art", "Untitled", "01 No Album Art.wav"), 180,
+              "No Album Art Here", "Test Artist", "Untitled", 1)
+    write_wav(os.path.join(music, "Test", "Long Titles", "01 Long title.wav"), 300,
+              "A Really Long Track Title That Should Scroll Across The Whole Screen",
+              "Test Artist", "Long Titles", 1)
+    print(f"Test music written to {music}")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if len(sys.argv) not in (2, 3):
         sys.exit(__doc__)
-    main(sys.argv[1])
+    main(*sys.argv[1:])
