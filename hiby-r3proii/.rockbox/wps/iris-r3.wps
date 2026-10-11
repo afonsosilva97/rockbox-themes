@@ -1,0 +1,221 @@
+# Iris R3 - Rose Pine (dark) - while-playing screen
+# HiBy R3 Pro II, 480x720 portrait, touchscreen
+#
+# Portrait redesign of Iris by gloceansh (MIT):
+# https://github.com/gloceandotdev/iris-rockbox-theme
+#
+# Layout (below the base skin's 80 px header)
+#   100-440  album art, 340x340
+#   458-563  title, artist, album
+#   574-609  seek bar and times
+#   624-712  shuffle, previous, play/pause, next, repeat
+#
+# Lock: long-press the header to lock the touchscreen. The area below the
+# header then shows a clock and the current track; long-press it to unlock.
+#
+# Fonts (same slots as the .sbs)
+%Fl(2,20-Inter-SemiBold.fnt)
+%Fl(3,24-Inter-Regular.fnt)
+%Fl(4,30-Inter-Medium.fnt)
+%Fl(5,140-Inter-SemiBold.fnt)
+%Fl(6,40-Inter-Bold.fnt)
+#
+# Images (offsets centre each icon in its larger touch viewport)
+%xl(dot,dot.bmp,0,0,3)
+%xl(pp,play.bmp,0,0,2)
+%xl(sk,skip.bmp,10,10,2)
+%xl(sh,shuffle.bmp,12,12,2)
+%xl(rp,repeat.bmp,12,12,3)
+#
+# keep the base skin (status strip + title bar) visible
+%we
+#
+# Viewports are cleared on a full redraw, and the base skin's touch regions
+# don't respond on this screen. So the WPS keeps its own copy of the header:
+# a touch viewport first, then the header drawn over the area it clears.
+#
+# header always; below it, the lock screen or now playing
+%Vd(hdt)%Vd(hds)%Vd(hdd)%Vd(hdv)%Vd(hdc)%Vd(hdb)%Vd(hdl)%Vd(hdh)%Vd(hdn)
+%?mh<%Vd(lkbg)%Vd(lkc)%Vd(lkd)%Vd(lkh)%Vd(lkb)%Vd(lkt)%Vd(lka)%Vd(lke)%Vd(lkp)%Vd(lkr)|%Vd(npbg)%Vd(npa)%Vd(npt)%Vd(npr)%Vd(npl)%Vd(nps)%Vd(npp)%Vd(npe)%Vd(npv)%Vd(npc)%Vd(npn)%Vd(npx)%Vd(nph)>
+#
+# ---------------- Header (mirrors the .sbs) ----------------
+# tap the status strip or title bar to open the main menu; hold to lock
+%Vl(hdt,0,0,480,80,-)
+%Vb(181420)
+%T(0,0,-,-,lock,long_press)
+%T(0,0,-,-,menu)
+#
+%Vl(hds,0,0,480,36,-)
+%Vb(282438)
+%dr(0,0,480,36,282438)
+#
+%Vl(hdd,20,12,12,12,-)
+%Vb(282438)
+%?if(%mp, =, 3)<%xd(dot,2)|%?if(%mp, >, 1)<%xd(dot,1)|%xd(dot,3)>>
+#
+%Vl(hdv,312,15,56,6,-)
+%Vf(c0a4e0)
+%Vb(403c50)
+%pv(0,0,56,6,noborder)
+#
+%Vl(hdc,376,7,58,22,2)
+%Vf(908ca8)
+%Vb(282438)
+%ar%?cf<%cH|%cl>:%cM
+#
+%Vl(hdb,442,11,28,14,-)
+%Vf(908ca8)
+%Vb(282438)
+%dr(0,0,24,14,908ca8)
+%dr(1,1,22,12,282438)
+%dr(24,4,3,6,908ca8)
+%bl(3,3,18,8,noborder)
+#
+%Vl(hdl,0,79,480,1,-)
+%Vb(282438)
+%dr(0,0,480,1,282438)
+#
+%Vl(hdh,20,47,280,22,2)
+%Vf(908ca8)
+%Vb(181420)
+%alN O W  P L A Y I N G
+#
+%Vl(hdn,320,46,140,25,3)
+%Vf(908ca8)
+%Vb(181420)
+%ar%pp / %pe
+#
+# ---------------- Now playing ----------------
+# background: clears what the lock screen left behind when it's unlocked
+%Vl(npbg,0,80,480,640,-)
+%Vb(181420)
+#
+# album art, 338x338 inside a 1 px frame; long-press for the context menu
+%Vl(npa,70,100,340,340,-)
+%Vb(181420)
+%dr(0,0,340,340,504c60)
+%dr(1,1,338,338,202030)
+%Cl(1,1,338,338,c,c)
+%Cd
+%T(0,0,-,-,contextmenu,long_press)
+#
+%Vl(npt,24,458,432,42,6)
+%Vf(d8d8e8)
+%Vb(181420)
+%s%ac%?it<%it|%fn>
+#
+%Vl(npr,24,504,432,32,4)
+%Vf(c0a4e0)
+%Vb(181420)
+%s%ac%ia
+#
+%Vl(npl,24,538,432,25,3)
+%Vf(686880)
+%Vb(181420)
+%s%ac%id
+#
+# seek touch target, taller than the 4 px bar. Defined before the bar and the
+# times so they are drawn over the area it clears.
+%Vl(nps,40,564,400,45,-)
+%Vb(181420)
+%T(seek,0,0,-,-,progressbar)
+#
+# seek bar
+%Vl(npp,40,574,400,4,-)
+%Vf(c0a4e0)
+%Vb(403c50)
+%pb(0,0,400,4,noborder,notouch)
+#
+%Vl(npe,40,584,400,25,3)
+%Vf(686880)
+%Vb(181420)
+%al%pc%ar%pt
+#
+# ---------------- Controls ----------------
+# Each control's viewport is its touch target: larger than the icon, which is
+# offset to its centre. Touch regions only respond inside their own viewport.
+#
+# shuffle
+%Vl(npv,12,634,68,68,-)
+%Vb(181420)
+%?ps<%xd(sh,2)|%xd(sh,1)>
+%T(0,0,-,-,shuffle)
+#
+# previous; hold to rewind
+%Vl(npc,100,630,76,76,-)
+%Vb(181420)
+%xd(sk,1)
+%T(0,0,-,-,rwd,repeat_press)
+%T(0,0,-,-,wps_prev)
+#
+# play/pause; hold to stop
+%Vl(npx,196,624,88,88,-)
+%Vb(181420)
+%?mp<%xd(pp,1)|%xd(pp,2)|%xd(pp,1)|%xd(pp,2)|%xd(pp,2)>
+%T(0,0,-,-,stop,long_press)
+%T(0,0,-,-,play)
+#
+# next; hold to fast-forward
+%Vl(npn,304,630,76,76,-)
+%Vb(181420)
+%xd(sk,2)
+%T(0,0,-,-,ffwd,repeat_press)
+%T(0,0,-,-,wps_next)
+#
+# repeat: off, all, one (A-B shows as all, shuffle mode as off)
+%Vl(nph,400,634,68,68,-)
+%Vb(181420)
+%?mm<%xd(rp,1)|%xd(rp,2)|%xd(rp,3)|%xd(rp,1)|%xd(rp,2)>
+%T(0,0,-,-,repmode)
+#
+# ---------------- Lock screen ----------------
+# background and unlock target: long-press anywhere below the header
+%Vl(lkbg,0,80,480,640,-)
+%Vb(181420)
+%T(0,0,-,-,lock,long_press)
+#
+%Vl(lkc,0,170,480,143,5)
+%Vf(d8d8e8)
+%Vb(181420)
+%ac%?cf<%cH|%cl>:%cM
+#
+%Vl(lkd,0,322,480,25,3)
+%Vf(908ca8)
+%Vb(181420)
+%ac%ca %cd %cb
+#
+%Vl(lkh,0,480,480,25,3)
+%Vf(686880)
+%Vb(181420)
+%acHold to unlock
+#
+# bottom card: track info and seek bar
+%Vl(lkb,0,560,480,160,-)
+%Vb(201c30)
+%dr(0,0,480,160,201c30)
+%dr(0,0,480,1,282438)
+#
+%Vl(lkt,32,584,416,32,4)
+%Vf(d8d8e8)
+%Vb(201c30)
+%s%al%?it<%it|%fn>
+#
+%Vl(lka,32,620,416,25,3)
+%Vf(908ca8)
+%Vb(201c30)
+%s%al%ia%?id< — %id|>
+#
+%Vl(lke,32,664,72,25,3)
+%Vf(686880)
+%Vb(201c30)
+%al%pc
+#
+%Vl(lkp,112,675,256,4,-)
+%Vf(c0a4e0)
+%Vb(403c50)
+%pb(0,0,256,4,noborder,notouch)
+#
+%Vl(lkr,376,664,72,25,3)
+%Vf(686880)
+%Vb(201c30)
+%ar%pt

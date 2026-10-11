@@ -1,0 +1,97 @@
+# Iris R3 - Rose Pine (dark) - base skin
+# HiBy R3 Pro II, 480x720 portrait, touchscreen
+#
+# Portrait redesign of Iris by gloceansh (MIT):
+# https://github.com/gloceandotdev/iris-rockbox-theme
+# Iris's sidebar becomes a status strip; its topbar becomes the title bar.
+#
+# Layout
+#   0-36    status strip: playback dot, volume, clock, battery
+#   36-80   title bar: screen title, now-playing info or playlist position
+#   80-720  lists
+#
+# The lock screen lives in the .wps: this player has no hold switch, and the
+# touchscreen lock is only visible to the skin that defines it.
+#
+# Fonts
+%Fl(2,20-Inter-SemiBold.fnt)
+%Fl(3,24-Inter-Regular.fnt)
+#
+# playback dot: 1 playing circle, 2 paused solid square, 3 stopped hollow square
+%xl(dot,dot.bmp,0,0,3)
+#
+# title bar contents per screen
+%?if(%cs, =, 2)<%Vd(tbnp)|%Vd(tbk)%?if(%mp, >, 1)<%Vd(tbsa)%Vd(tbst)>>
+#
+# ---------------- Header touch ----------------
+# In menus, tap the title bar to go back. Defined first: viewports are cleared
+# on a full redraw, so everything drawn after this paints over that area.
+# (Base skin touch regions don't respond on the WPS, which has its own header.)
+%Vl(tbk,0,36,480,43,-)
+%Vb(181420)
+%T(0,0,-,-,cancel)
+#
+# ---------------- Status strip ----------------
+%V(0,0,480,36,-)
+%Vb(282438)
+%dr(0,0,480,36,282438)
+#
+# playback dot
+%V(20,12,12,12,-)
+%Vb(282438)
+%?if(%mp, =, 3)<%xd(dot,2)|%?if(%mp, >, 1)<%xd(dot,1)|%xd(dot,3)>>
+#
+# volume bar
+%V(312,15,56,6,-)
+%Vf(c0a4e0)
+%Vb(403c50)
+%pv(0,0,56,6,noborder)
+#
+# clock HH:MM
+%V(376,7,58,22,2)
+%Vf(908ca8)
+%Vb(282438)
+%ar%?cf<%cH|%cl>:%cM
+#
+# battery pill
+%V(442,11,28,14,-)
+%Vf(908ca8)
+%Vb(282438)
+%dr(0,0,24,14,908ca8)
+%dr(1,1,22,12,282438)
+%dr(24,4,3,6,908ca8)
+%bl(3,3,18,8,noborder)
+#
+# ---------------- Title bar ----------------
+%V(0,36,480,44,-)
+%Vb(181420)
+%dr(0,43,480,1,282438)
+#
+# screen title
+%V(20,47,280,22,2)
+%Vf(908ca8)
+%Vb(181420)
+%al%?cs<R O C K B O X|N O W  P L A Y I N G|R E C O R D I N G|F M  R A D I O|P L A Y L I S T|S E T T I N G S|F I L E S|D A T A B A S E|P L U G I N S|Q U I C K  S E T T I N G S|P I T C H|%Lt|P L A Y L I S T S|P L U G I N|M E N U|S Y S T E M|T I M E  &  D A T E|B O O K M A R K S|S H O R T C U T S|T R A C K  I N F O|U S B|%Lt>
+#
+# title bar: playlist position on the WPS. The WPS draws the same in its own
+# header copy; both skins redraw independently, so they must match.
+%Vl(tbnp,320,46,140,25,3)
+%Vf(908ca8)
+%Vb(181420)
+%ar%pp / %pe
+#
+# title bar: now-playing info and album thumb in menus
+%Vl(tbsa,436,46,24,24,-)
+%Vb(181420)
+%Cl(0,0,24,24,c,c)
+%Cd
+#
+%Vl(tbst,300,46,128,25,3)
+%Vf(908ca8)
+%Vb(181420)
+%s%ar%?it<%it|%fn>%?ia< — %ia|>
+#
+# ---------------- Lists ----------------
+%Vi(-,0,80,480,640,-)
+%Vf(d8d8e8)
+%Vb(181420)
