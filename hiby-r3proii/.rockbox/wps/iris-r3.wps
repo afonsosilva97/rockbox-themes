@@ -11,7 +11,7 @@
 #   624-712  shuffle, previous, play/pause, next, repeat
 #
 # Lock: Rockbox's key lock (power + volume up) shows a lock screen below the
-# header. Same design as the .sbs lock screen, which covers the menus.
+# header. (In menus the .sbs only changes the title to LOCKED.)
 #
 # Fonts (same slots as the .sbs)
 %Fl(2,20-Inter-SemiBold.fnt)
@@ -173,7 +173,7 @@
 %T(0,0,-,-,repmode)
 #
 # ---------------- Lock screen ----------------
-# Shown while Rockbox's key lock is on (power + volume up), on every screen.
+# Shown on Now Playing while Rockbox's key lock is on (power + volume up).
 # %mh is true for key lock on this player (it has no hold switch).
 %Vl(lkbg,0,80,480,640,-)
 %Vb(181420)

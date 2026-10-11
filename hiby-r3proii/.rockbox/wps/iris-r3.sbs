@@ -8,21 +8,18 @@
 # Layout
 #   0-36    status strip: playback dot, volume, clock, battery % and icon
 #   36-80   title bar: screen title, now-playing info or playlist position
-#   80-720  lists, or the lock screen while Rockbox's key lock is on
+#   80-720  lists
+#
+# Key lock (power + volume up): in menus the title bar reads LOCKED and the
+# list stays visible. Hiding the list doesn't work reliably: Rockbox doesn't
+# redraw it when the lock lifts. Now Playing's full lock screen is in the .wps.
 #
 # Fonts
 %Fl(2,20-Inter-SemiBold.fnt)
 %Fl(3,24-Inter-Regular.fnt)
-%Fl(4,30-Inter-Medium.fnt)
-%Fl(5,140-Inter-SemiBold.fnt)
 #
 # playback dot: 1 playing circle, 2 paused solid square, 3 stopped hollow square
 %xl(dot,dot.bmp,0,0,3)
-#
-# key lock: hide the list and show the lock screen. On Now Playing the .wps
-# draws its own copy (one skin per screen avoids redraw races on unlock).
-%?mh<%VI(h)|%VI(m)>
-%?mh<%?if(%cs, =, 2)<|%Vd(lkbg)%Vd(lkc)%Vd(lkd)%Vd(lkh)%?if(%mp, >, 1)<%Vd(lkb)%Vd(lkt)%Vd(lka)%Vd(lke)%Vd(lkp)%Vd(lkr)>>>
 #
 # title bar contents per screen
 %?if(%cs, =, 2)<%Vd(tbnp)|%Vd(tbk)%?if(%mp, >, 1)<%Vd(tbp)%Vd(tbsa)%Vd(tbst)|%Vd(tbk2)>>
@@ -113,64 +110,6 @@
 %ar%?it<%ss(0,16,%it)%?ss(16,1,%it)<…|>|%ss(0,16,%fn)%?ss(16,1,%fn)<…|>>
 #
 # ---------------- Lists ----------------
-%Vi(m,0,80,480,640,-)
+%Vi(-,0,80,480,640,-)
 %Vf(d8d8e8)
 %Vb(181420)
-#
-# collapsed 1x1 stub used while locked
-%Vi(h,0,80,1,1,-)
-%Vf(181420)
-%Vb(181420)
-#
-# ---------------- Lock screen ----------------
-# Shown in menus while Rockbox's key lock is on (power + volume up). %mh is
-# true for key lock on this player (it has no hold switch). The .wps has an
-# identical copy for Now Playing: keep both in sync.
-%Vl(lkbg,0,80,480,640,-)
-%Vb(181420)
-#
-%Vl(lkc,0,170,480,143,5)
-%Vf(d8d8e8)
-%Vb(181420)
-%ac%?cf<%cH|%cl>:%cM
-#
-%Vl(lkd,0,322,480,25,3)
-%Vf(908ca8)
-%Vb(181420)
-%ac%ca %cd %cb
-#
-%Vl(lkh,0,480,480,25,3)
-%Vf(686880)
-%Vb(181420)
-%acPower + Vol+ to unlock
-#
-# bottom card: track info and seek bar, while something is playing
-%Vl(lkb,0,560,480,160,-)
-%Vb(201c30)
-%dr(0,0,480,160,201c30)
-%dr(0,0,480,1,282438)
-#
-%Vl(lkt,32,584,416,32,4)
-%Vf(d8d8e8)
-%Vb(201c30)
-%s%al%?it<%it|%fn>
-#
-%Vl(lka,32,620,416,25,3)
-%Vf(908ca8)
-%Vb(201c30)
-%s%al%ia%?id< — %id|>
-#
-%Vl(lke,32,664,72,25,3)
-%Vf(686880)
-%Vb(201c30)
-%al%pc
-#
-%Vl(lkp,112,675,256,4,-)
-%Vf(c0a4e0)
-%Vb(403c50)
-%pb(0,0,256,4,noborder,notouch)
-#
-%Vl(lkr,376,664,72,25,3)
-%Vf(686880)
-%Vb(201c30)
-%ar%pt
