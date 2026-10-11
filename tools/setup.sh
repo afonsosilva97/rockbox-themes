@@ -10,7 +10,8 @@
 #
 # Defaults: --target hibyr3proii, --dir reference (gitignored). Everything is
 # built inside the work dir; nothing outside it is modified except Homebrew
-# packages. --update pulls the latest Rockbox source and rebuilds.
+# packages. Rockbox is pinned to a tested commit (rockbox_commit in this file);
+# --update builds the latest Rockbox instead. If that works, move the pin.
 #
 # Rockbox's build assumes Linux and GCC. The patch_makefile and gen_headers
 # steps in this script make it build with Apple clang; see DEV.md.
@@ -22,6 +23,8 @@ target="hibyr3proii"
 work="$repo/reference"
 update=false
 inter_version="4.1"
+# Rockbox commit this setup is tested with (2026-10-10)
+rockbox_commit="b819e910007795e51bf2a3d429574be7d52c4827"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -62,12 +65,22 @@ echo "ok"
 # ---------------------------------------------------------------- Rockbox source
 step "Rockbox source ($rb)"
 if [[ ! -d "$rb/.git" ]]; then
-  run git clone --depth 1 https://github.com/Rockbox/rockbox.git "$rb"
-elif $update; then
-  run git -C "$rb" checkout -- firmware/target/hosted/sdl/button-sdl.c
-  run git -C "$rb" pull --depth 1 --rebase
+  run git init -q "$rb"
+  run git -C "$rb" remote add origin https://github.com/Rockbox/rockbox.git
+fi
+want="$rockbox_commit"
+$update && want="master"
+if $update || [[ "$(git -C "$rb" rev-parse HEAD 2> /dev/null)" != "$rockbox_commit" ]]; then
+  # undo the test hook so the checkout is clean; it's re-applied below
+  git -C "$rb" checkout -q -- firmware/target/hosted/sdl/button-sdl.c 2> /dev/null || true
+  run git -C "$rb" fetch --depth 1 origin "$want"
+  run git -C "$rb" checkout -q --detach FETCH_HEAD
 fi
 git -C "$rb" log -1 --format='%h %cd %s' --date=short
+if $update && [[ "$(git -C "$rb" rev-parse HEAD)" != "$rockbox_commit" ]]; then
+  echo "Building the latest Rockbox. If everything works, set rockbox_commit in tools/setup.sh to:"
+  git -C "$rb" rev-parse HEAD
+fi
 
 # The simulator test hook replays scripted touches and screenshots (DEV.md).
 if git -C "$rb" apply --check "$repo/tools/sim-test-hook.patch" 2> /dev/null; then

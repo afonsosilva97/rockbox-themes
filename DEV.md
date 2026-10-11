@@ -31,8 +31,10 @@ This needs Homebrew and the Xcode command line tools. It installs `sdl2`, `freet
 
 The first run takes two to three minutes, depending on the download. Output goes to `reference/setup.log`.
 
+Rockbox is pinned to the commit this setup was tested with (`rockbox_commit` in `tools/setup.sh`), so a later Rockbox change can't break the build unexpectedly.
+
 Options:
-- `--update` pulls the latest Rockbox source and rebuilds. Run it occasionally, or when the player gets a newer Rockbox build.
+- `--update` builds the latest Rockbox instead of the pinned commit. If everything still works (setup, `tools/check.sh`, the simulator), move the pin to the commit it prints.
 - `--target <name>` builds for another Rockbox target (e.g. `hibyr1`) when a new device folder is added.
 - `--dir <path>` builds somewhere other than `reference/`. Set `THEMES_WORK=<path>` so the other scripts find it.
 
@@ -58,6 +60,7 @@ Options:
 |---|---|
 | `.wps`, `.sbs` or `.cfg` | Nothing to build. Rerun `./simulate.sh`, which copies the files again. |
 | A theme's bitmaps or fonts (e.g. `src/iris-r3/make_bitmaps.py`) | `hiby-r3proii/src/iris-r3/build.sh`, then `./simulate.sh` |
+| Anything visible, before committing | `hiby-r3proii/src/iris-r3/screenshots.sh` to refresh the README screenshots and preview page |
 | Rockbox version | `tools/setup.sh --update` |
 | Nothing, but the simulator acts strangely | `tools/setup.sh` (rebuilds from scratch) |
 
@@ -82,7 +85,7 @@ cd reference/rockbox/build-sim
 RB_TEST_SCRIPT="5000 down 100 110;5100 up;7000 dump;8000 quit" ./rockboxui --nobackground
 ```
 
-Each step is `<milliseconds since start> <action>`, separated by `;`. Actions are `down <x> <y>`, `up`, `dump` (screenshot) and `quit`. Coordinates are screen pixels. Leave about five seconds for the simulator to start (the first start after a rebuild is the slowest) and a second or two after each tap for the screen to settle. With `--nobackground` the window shows only the screen, so window and screen coordinates match. This is how screens get checked without clicking through them.
+Each step is `<milliseconds since start> <action>`, separated by `;`. Actions are `down <x> <y>`, `up`, `dump` (screenshot) and `quit`. Coordinates are screen pixels. Leave about five seconds for the simulator to start (the first start after a rebuild is the slowest) and a second or two after each tap for the screen to settle. With `--nobackground` the window shows only the screen, so window and screen coordinates match. This is how screens get checked without clicking through them. `hiby-r3proii/src/iris-r3/screenshots.sh` uses it to regenerate iris-r3's screenshots and re-embed them in `previews/iris-r3.html`.
 
 ## Rockbox's build on macOS
 
