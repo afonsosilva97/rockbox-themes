@@ -5,6 +5,9 @@
 #   - convttf    converts TTF fonts to anti-aliased Rockbox .fnt files
 #   - simulator  the Rockbox UI for the device, with silent test music
 #   - Inter      the font used by iris-r3, for rebuilding its .fnt files
+#   - Cantarell  the font used by adwaitapod-r3 (static weights made from the
+#                variable font with fontTools, in a Python venv)
+#   - Adwaita    GNOME's symbolic icons, drawn into adwaitapod-r3's bitmaps
 #
 #   tools/setup.sh [--target <rockbox-target>] [--dir <work-dir>] [--update]
 #
@@ -23,6 +26,9 @@ target="hibyr3proii"
 work="$repo/reference"
 update=false
 inter_version="4.1"
+cantarell_version="0.303.1"
+fonttools_version="4.53.1"
+adwaita_version="47.0"
 # Rockbox commit this setup is tested with (2026-10-10)
 rockbox_commit="b819e910007795e51bf2a3d429574be7d52c4827"
 
@@ -166,10 +172,45 @@ if [[ ! -f "$inter/extras/ttf/Inter-Regular.ttf" ]]; then
 fi
 echo "$inter/extras/ttf"
 
+# ---------------------------------------------------------------- Cantarell
+step "Cantarell $cantarell_version"
+cantarell="$work/cantarell"
+if [[ ! -f "$cantarell/Cantarell-Bold.otf" ]]; then
+  mkdir -p "$cantarell"
+  run curl -fsSL -o "$cantarell/cantarell.tar.xz" \
+    "https://download.gnome.org/sources/cantarell-fonts/${cantarell_version%.*}/cantarell-fonts-$cantarell_version.tar.xz"
+  run tar -xf "$cantarell/cantarell.tar.xz" -C "$cantarell" --strip-components=1 \
+    "cantarell-fonts-$cantarell_version/prebuilt/Cantarell-VF.otf" "cantarell-fonts-$cantarell_version/COPYING"
+  rm "$cantarell/cantarell.tar.xz"
+  [[ -x "$work/venv/bin/fonttools" ]] || { run python3 -m venv "$work/venv"; run "$work/venv/bin/pip" install -q "fonttools==$fonttools_version"; }
+  # Cantarell ships only as a variable font; convttf needs one file per weight
+  for weight in 300:Light 400:Regular 700:Bold; do
+    run "$work/venv/bin/fonttools" varLib.instancer -q "$cantarell/prebuilt/Cantarell-VF.otf" \
+      "wght=${weight%%:*}" -o "$cantarell/Cantarell-${weight##*:}.otf"
+  done
+fi
+echo "$cantarell"
+
+# ---------------------------------------------------------------- Adwaita icons
+step "Adwaita icons $adwaita_version"
+adwaita="$work/adwaita-icons"
+if [[ ! -d "$adwaita/Adwaita/symbolic" ]]; then
+  mkdir -p "$adwaita"
+  run curl -fsSL -o "$adwaita/adwaita.tar.xz" \
+    "https://download.gnome.org/sources/adwaita-icon-theme/${adwaita_version%%.*}/adwaita-icon-theme-$adwaita_version.tar.xz"
+  run tar -xf "$adwaita/adwaita.tar.xz" -C "$adwaita" --strip-components=1 \
+    "adwaita-icon-theme-$adwaita_version/Adwaita/symbolic" "adwaita-icon-theme-$adwaita_version/COPYING" \
+    "adwaita-icon-theme-$adwaita_version/COPYING_CCBYSA3"
+  rm "$adwaita/adwaita.tar.xz"
+fi
+echo "$adwaita/Adwaita/symbolic"
+
 step "Done"
 cat <<EOF
 checkwps   $cw/checkwps.$target
 convttf    $rb/tools/convttf
 simulator  ./simulate.sh <device-folder> [theme]
 Inter      $inter/extras/ttf
+Cantarell  $cantarell
+Adwaita    $adwaita/Adwaita/symbolic
 EOF
