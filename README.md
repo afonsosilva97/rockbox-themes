@@ -11,8 +11,15 @@ Custom [Rockbox](https://www.rockbox.org/) themes, organised per device.
 | Theme | Device | Look | Preview |
 |---|---|---|---|
 | `iris-r3` | HiBy R3 Pro II | Quiet and minimal, Rosé Pine palette, touch controls. A portrait redesign of [Iris](https://github.com/gloceandotdev/iris-rockbox-theme). | [`previews/iris-r3.html`](hiby-r3proii/previews/iris-r3.html) |
+| `adwaitapod-r3`, `adwaitapod-r3-dark` | HiBy R3 Pro II | GNOME style in light and dark: home screen widgets, mini player, quick screen sliders, lock screen. A portrait redesign of [adwaitapod](https://github.com/D0-0K/adwaitapod). | [`previews/adwaitapod-r3.html`](hiby-r3proii/previews/adwaitapod-r3.html) |
+
+**iris-r3**
 
 <img src="hiby-r3proii/screenshots/iris-r3.png" alt="iris-r3 Now Playing screen" width="240"> <img src="hiby-r3proii/screenshots/iris-r3-menu.png" alt="iris-r3 menu" width="240"> <img src="hiby-r3proii/screenshots/iris-r3-lock.png" alt="iris-r3 lock screen" width="240">
+
+**adwaitapod-r3** (light and dark)
+
+<img src="hiby-r3proii/screenshots/adwaitapod-r3-home.png" alt="adwaitapod-r3 home screen" width="240"> <img src="hiby-r3proii/screenshots/adwaitapod-r3.png" alt="adwaitapod-r3 Now Playing screen" width="240"> <img src="hiby-r3proii/screenshots/adwaitapod-r3-dark-menu.png" alt="adwaitapod-r3-dark menu with mini player" width="240"> <img src="hiby-r3proii/screenshots/adwaitapod-r3-dark-lock.png" alt="adwaitapod-r3-dark lock screen" width="240">
 
 Screenshots are from the Rockbox UI simulator.
 
@@ -46,7 +53,7 @@ Each device folder contains:
 - `previews/`: HTML previews of the themes, not deployed
 - `screenshots/`: images for this README
 
-Every file belonging to a theme starts with the theme's name, so several themes can coexist. Fonts are the exception: they keep their own names (e.g. `30-Inter-Medium.fnt`) so themes can share them.
+Every file belonging to a theme starts with the theme's name, so several themes can coexist. Fonts are the exception: they keep their own names (e.g. `30-Inter-Medium.fnt`) so themes can share them. A theme's variants (e.g. `adwaitapod-r3-dark`) are separate themes with their own files.
 
 ## Credits and licence
 

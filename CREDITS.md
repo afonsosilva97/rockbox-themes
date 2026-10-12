@@ -5,12 +5,19 @@ Themes in this repo that are adapted from other people's work. Each adapted them
 | Theme | Based on | Author | Licence | Link |
 |---|---|---|---|---|
 | `iris-r3` (HiBy R3 Pro II) | Iris | gloceansh | MIT | https://github.com/gloceandotdev/iris-rockbox-theme |
+| `adwaitapod-r3`, `adwaitapod-r3-dark` (HiBy R3 Pro II) | adwaitapod 3.4 | Dook | GPL-3.0 | https://github.com/D0-0K/adwaitapod |
 
 ## iris-r3
 
 - **Skins, config and bitmaps:** portrait redesign of Iris for 480×720. MIT, the same licence as Iris. Iris's licence text is in [`hiby-r3proii/src/iris-r3/LICENSE-iris.txt`](hiby-r3proii/src/iris-r3/LICENSE-iris.txt).
 - **Fonts:** converted from [Inter](https://github.com/rsms/inter) by The Inter Project Authors, SIL Open Font License 1.1. The licence ships next to the fonts in `.rockbox/fonts/Inter-License.txt`.
 - **Colour palette:** [Rosé Pine](https://rosepinetheme.com/), as used by Iris.
+
+## adwaitapod-r3
+
+- **Skins, configs, templates and bitmaps:** portrait touch redesign of adwaitapod for 480×720, in its light and dark palettes. GPL-3.0, the same licence as adwaitapod. Its licence text is in [`hiby-r3proii/src/adwaitapod-r3/LICENSE-adwaitapod.txt`](hiby-r3proii/src/adwaitapod-r3/LICENSE-adwaitapod.txt). The scripts that generate them (`src/adwaitapod-r3/*.py`, `*.sh`) are original code under this repo's MIT licence.
+- **Icons:** drawn from GNOME's [Adwaita icon theme](https://gitlab.gnome.org/GNOME/adwaita-icon-theme) 47.0 by the GNOME Project, which is licensed under LGPL-3.0 or CC BY-SA 3.0; used here under LGPL-3.0. See [`hiby-r3proii/src/adwaitapod-r3/LICENSE-adwaita-icons.txt`](hiby-r3proii/src/adwaitapod-r3/LICENSE-adwaita-icons.txt).
+- **Fonts:** converted from [Cantarell](https://gitlab.gnome.org/GNOME/cantarell-fonts) 0.303.1 by the Cantarell authors, SIL Open Font License 1.1. The licence ships next to the fonts in `.rockbox/fonts/Cantarell-License.txt`.
 
 ## Screenshots
 

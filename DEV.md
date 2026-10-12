@@ -7,12 +7,12 @@ How to edit, check and preview themes on a Mac without copying them to the playe
 | Path | In git | What it is |
 |---|---|---|
 | `<device>/.rockbox/` | yes | The theme files exactly as they go on the SD card |
-| `<device>/src/<theme>/` | yes | Scripts that generate a theme's fonts and bitmaps |
+| `<device>/src/<theme>/` | yes | Scripts that generate a theme's fonts and bitmaps (and, for adwaitapod-r3, its skins) |
 | `<device>/previews/` | yes | HTML previews to share |
 | `install.sh` | yes | Copies a device's themes onto a card (or the simulator's card) |
 | `simulate.sh` | yes | Opens the simulator with a device's themes |
 | `tools/` | yes | Setup and checking scripts |
-| `reference/` | no | Local build of Rockbox's tools and simulator, Inter, upstream themes |
+| `reference/` | no | Local build of Rockbox's tools and simulator, fonts, icons, upstream themes |
 
 `reference/` is rebuilt from scratch by `tools/setup.sh`, so it never needs backing up.
 
@@ -28,6 +28,8 @@ This needs Homebrew and the Xcode command line tools. It installs `sdl2`, `freet
 - **convttf:** converts TTF fonts to anti-aliased Rockbox `.fnt` files.
 - **The UI simulator:** the real Rockbox interface as a Mac app, with codecs and a small silent test library under Files → Music.
 - **Inter 4.1:** the font iris-r3 is built from.
+- **Cantarell 0.303.1:** the font adwaitapod-r3 is built from. It only ships as a variable font, so setup makes static Light, Regular and Bold instances with fontTools, installed in a Python venv in `reference/venv`.
+- **Adwaita icon theme 47.0:** GNOME's symbolic icons (SVG), drawn into adwaitapod-r3's bitmaps.
 
 The first run takes two to three minutes, depending on the download. Output goes to `reference/setup.log`.
 
@@ -40,7 +42,7 @@ Options:
 
 ## Everyday loop
 
-1. Edit the theme in `<device>/.rockbox/`.
+1. Edit the theme in `<device>/.rockbox/`. For adwaitapod-r3, edit the templates in `src/adwaitapod-r3/` instead and run its `build.sh` (see below).
 2. Check it:
    ```bash
    tools/check.sh hiby-r3proii
@@ -59,9 +61,10 @@ Options:
 
 | You changed | Do this |
 |---|---|
-| `.wps`, `.sbs` or `.cfg` | Nothing to build. Rerun `./simulate.sh`, which copies the files again. |
-| A theme's bitmaps or fonts (e.g. `src/iris-r3/make_bitmaps.py`) | `hiby-r3proii/src/iris-r3/build.sh`, then `./simulate.sh` |
-| Anything visible, before committing | `hiby-r3proii/src/iris-r3/screenshots.sh` to refresh the README screenshots and preview page |
+| iris-r3's `.wps`, `.sbs` or `.cfg` | Nothing to build. Rerun `./simulate.sh`, which copies the files again. |
+| adwaitapod-r3's skins or colours (`src/adwaitapod-r3/*.in`, `variants.py`) | `python3 hiby-r3proii/src/adwaitapod-r3/make_skins.py hiby-r3proii/.rockbox` (seconds), or `build.sh` if colours changed, since the bitmaps use them too |
+| A theme's bitmaps or fonts (e.g. `src/iris-r3/make_bitmaps.py`) | That theme's `build.sh` (`hiby-r3proii/src/<theme>/build.sh`), then `./simulate.sh` |
+| Anything visible, before committing | That theme's `screenshots.sh` to refresh the README screenshots and preview page |
 | Rockbox version | `tools/setup.sh --update` |
 | Nothing, but the simulator acts strangely | `tools/setup.sh` (rebuilds from scratch) |
 
@@ -86,7 +89,18 @@ cd reference/rockbox/build-sim
 RB_TEST_SCRIPT="5000 down 100 110;5100 up;7000 dump;8000 quit" ./rockboxui --nobackground
 ```
 
-Each step is `<milliseconds since start> <action>`, separated by `;`. Actions are `down <x> <y>`, `up`, `keys <hex>` (hold hardware buttons; `0` releases), `dump` (screenshot) and `quit`. On the R3 Pro II, power is `1` and volume up `10`, so key lock is `keys 1;keys 11;keys 0` a few hundred milliseconds apart. Coordinates are screen pixels. Leave about five seconds for the simulator to start (the first start after a rebuild is the slowest) and a second or two after each tap for the screen to settle. With `--nobackground` the window shows only the screen, so window and screen coordinates match. This is how screens get checked without clicking through them. `hiby-r3proii/src/iris-r3/screenshots.sh` uses it to regenerate iris-r3's screenshots and re-embed them in `previews/iris-r3.html`.
+Each step is `<milliseconds since start> <action>`, separated by `;`. Actions are `down <x> <y>`, `up`, `keys <hex>` (hold hardware buttons; `0` releases), `dump` (screenshot) and `quit`. On the R3 Pro II, power is `1` and volume up `10`, so key lock is `keys 1;keys 11;keys 0` a few hundred milliseconds apart. Coordinates are screen pixels. Leave about five seconds for the simulator to start (the first start after a rebuild is the slowest) and a second or two after each tap for the screen to settle. With `--nobackground` the window shows only the screen, so window and screen coordinates match. A flick is a fast drag: several `down` steps 30 ms apart, then `up`. A flick down from the top edge on Now Playing opens the quick screen: `down 240 4;…down 240 80;…down 240 180;…down 240 300;…up`. This is how screens get checked without clicking through them. Each theme's `screenshots.sh` uses it to regenerate its screenshots and re-embed them in its preview page.
+
+## adwaitapod-r3's build
+
+adwaitapod-r3 comes in two variants (light and dark) with the same layout, so its skins are generated rather than edited:
+
+- `variants.py` holds both palettes.
+- `adwaitapod-r3.{wps,sbs,cfg}.in` are the skins and theme file, with `{bg}`-style colour placeholders. `make_skins.py` writes them out for each variant.
+- `make_bitmaps.py` draws every image for both variants: shapes, the lock screen wallpaper, and Adwaita icons through `svgicon.py`, a small SVG renderer that covers what those icons use.
+- `make_fonts.sh` converts Cantarell.
+
+`build.sh` runs all four.
 
 ## Rockbox's build on macOS
 
@@ -112,4 +126,9 @@ Things that pass `checkwps` but go wrong on the screen. All of them came up whil
 - **List icons carry state, so they can't all be blank.** Rockbox shows on/off in option lists (e.g. Advanced Key Lock), the playing/queued/moving track in the playlist viewer and selected folders only through icons. Rockbox also reuses icon slots across contexts: the "selected" dot is the generic-submenu icon, the audio-file icon marks "Database" in the main menu, and the playlist-file icon marks "Playlists". So file-type icons can't be drawn without putting icons on menu rows; iris-r3 draws only state icons. Icons sit on the selection bar too, so use 32-bit BMPs with alpha and give accent-coloured glyphs a dark halo.
 - **Only Rockbox's built-in list scrollbar can be dragged.** A skin-drawn list bar (`%LB`) gets no touch region, so iris-r3 uses `scrollbar: right` (12 px) in the `.cfg`. Its width is also its grab area, and it's drawn in the list's text colour: a differently coloured scrollbar means differently coloured list text. It only appears when a list doesn't fit the screen.
 - **`list padding` is the total extra row height**, not padding per side. On a 32 px font, 28 gives 60 px rows. It's a global setting, so it stays when switching to a theme that doesn't set it.
+- **Images are drawn after all text.** Within a skin, `%xd` images are painted once every viewport's text is done, so an image under a label covers it. Put anything that carries text on the backdrop layer instead (below).
+- **Text over images: draw them on the backdrop (`%VB`).** A viewport with `%VB` draws onto a backdrop buffer, and every other viewport's background, including text and list rows, shows that buffer instead of a flat colour. adwaitapod-r3 draws all its backgrounds (bars, cards, wallpaper, buttons) in one `%VB` viewport. The screen only shows backdrop changes where a viewport above redraws: when a button's colour depends on a state, cover it with text lines that change with that state (e.g. `%?ps< |  >`), so tapping it clears the area and repaints the new colour.
+- **Each line of a `%VB` viewport is cleared before it redraws.** A dynamic line in the backdrop viewport repaints its band in the viewport's background colour, wiping what static lines drew there. Keep all backdrop drawing on one line.
+- **Pick colours the 16-bit LCD shows exactly.** Rockbox rounds skin colours (`%dr`, `%Vf`) and bitmap pixels differently, so an in-between colour shows two shades where an image meets a fill. adwaitapod-r3 snaps its palette to RGB565 values (`variants.py`), keeping greys neutral.
+- **One album art size per skin.** `%Cl` can appear once; `%Cd` draws it at that size in any viewport. adwaitapod-r3's base skin uses 56 px for both its mini players.
 - **`statusbar` and `ui viewport`** in a `.cfg` only shape Rockbox's built-in bar, which isn't used when the theme has a `.sbs`.
