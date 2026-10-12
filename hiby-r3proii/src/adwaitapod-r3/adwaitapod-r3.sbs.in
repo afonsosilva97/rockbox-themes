@@ -16,7 +16,7 @@
 #   other menus
 #     56-720   list; 56-640 while playing, with a mini player below
 #   quick screen
-#     battery and back, volume and brightness sliders, Rockbox's items below
+#     battery and back, volume slider, brightness presets, Rockbox's items below
 #
 # Two layers: the first viewport draws backgrounds onto the backdrop buffer
 # (%VB), so the text and lists above show it through instead of filling
@@ -39,6 +39,10 @@
 %xl(Brep,pill.bmp,246,660,2)
 %xl(Bqsbatt,qsbatt.bmp,24,24)
 %xl(Bqsback,qsback.bmp,400,24)
+%xl(Bb1,bpill.bmp,64,176,2)
+%xl(Bb2,bpill.bmp,166,176,2)
+%xl(Bb3,bpill.bmp,268,176,2)
+%xl(Bb4,bpill.bmp,370,176,2)
 # Images for the foreground (positions are in their viewport)
 %xl(back,back.bmp,0,0)
 %xl(lock,lock.bmp,0,0)
@@ -62,13 +66,13 @@
 %xl(seekknob,seekknob.bmp,0,0)
 #
 # ---------------- Which parts show ----------------
-%?if(%cs, =, 10)<%VI(qs)%Vd(qs)|%Vd(sb)%?mh<%Vd(sbl)|%?if(%cs, =, 1)<|%Vd(sbk)>>%?if(%cs, =, 1)<%VI(home)%Vd(home)%?if(%mp, >, 1)<%Vd(minih)|%Vd(clock)>%?ps<%Vd(shon)|%Vd(shoff)>%?mm<%Vd(repoff)|%Vd(repon)|%Vd(repon)|%Vd(repon)|%Vd(repon)>|%?if(%mp, >, 1)<%VI(short)%Vd(mini)|%VI(full)>>>
+%?if(%cs, =, 10)<%VI(qs)%Vd(qs)%?if(%St(brightness), =, 10)<%Vd(b1on)|%Vd(b1off)>%?if(%St(brightness), =, 40)<%Vd(b2on)|%Vd(b2off)>%?if(%St(brightness), =, 70)<%Vd(b3on)|%Vd(b3off)>%?if(%St(brightness), =, 100)<%Vd(b4on)|%Vd(b4off)>|%Vd(sb)%?mh<%Vd(sbl)|%?if(%cs, =, 1)<|%Vd(sbk)>>%?if(%cs, =, 1)<%VI(home)%Vd(home)%?if(%mp, >, 1)<%Vd(minih)|%Vd(clock)>%?ps<%Vd(shon)|%Vd(shoff)>%?mm<%Vd(repoff)|%Vd(repon)|%Vd(repon)|%Vd(repon)|%Vd(repon)>|%?if(%mp, >, 1)<%VI(short)%Vd(mini)|%VI(full)>>>
 #
 # ---------------- Backdrop layer ----------------
 # One line: when a line redraws, its band is cleared first, so everything on
 # the backdrop must redraw with it.
 %V(0,0,-,-,-)%VB
-%dr(0,0,-,-,{bg})%?if(%cs, =, 10)<%xd(Bqsbatt)%xd(Bqsback)|%dr(0,0,480,55,{header})%dr(0,55,480,1,{border})%?if(%cs, =, 1)<%dr(0,504,480,1,{border})%?if(%mp, >, 1)<%xd(Bhcard)>%xd(Bvol)%xd(Bvolcap)%?ps<%xd(Bshuf,2)|%xd(Bshuf,1)>%?mm<%xd(Brep,1)|%xd(Brep,2)|%xd(Brep,2)|%xd(Brep,2)|%xd(Brep,2)>|%?if(%mp, >, 1)<%dr(0,640,480,80,{header})%dr(0,640,480,1,{border})>>>
+%dr(0,0,-,-,{bg})%?if(%cs, =, 10)<%xd(Bqsbatt)%xd(Bqsback)%?if(%St(brightness), =, 10)<%xd(Bb1,2)|%xd(Bb1,1)>%?if(%St(brightness), =, 40)<%xd(Bb2,2)|%xd(Bb2,1)>%?if(%St(brightness), =, 70)<%xd(Bb3,2)|%xd(Bb3,1)>%?if(%St(brightness), =, 100)<%xd(Bb4,2)|%xd(Bb4,1)>|%dr(0,0,480,55,{header})%dr(0,55,480,1,{border})%?if(%cs, =, 1)<%dr(0,504,480,1,{border})%?if(%mp, >, 1)<%xd(Bhcard)>%xd(Bvol)%xd(Bvolcap)%?ps<%xd(Bshuf,2)|%xd(Bshuf,1)>%?mm<%xd(Brep,1)|%xd(Brep,2)|%xd(Brep,2)|%xd(Brep,2)|%xd(Brep,2)>|%?if(%mp, >, 1)<%dr(0,640,480,80,{header})%dr(0,640,480,1,{border})>>>
 #
 # ---------------- Status bar ----------------
 # back: tap anywhere on the left of the bar
@@ -195,7 +199,48 @@
 %?if(%pv, <, -60)<%xd(volf,1)|%?if(%pv, <, -35)<%xd(volf,2)|%?if(%pv, <, -15)<%xd(volf,3)|%xd(volf,4)>>>
 %Vl(qs,64,124,400,24,-)
 %pv(0,0,400,24,seekfill.bmp,backdrop,seekbk,slider,seekknob)
-%Vl(qs,24,180,24,24,-)
+# Brightness presets. Rockbox's setting bar (%St as a bar) can't be used: it
+# draws inverted with the default "list order" (descending), and dragging it
+# changes the setting without applying it. setting_set applies the value.
+%Vl(qs,24,184,24,24,-)
 %xd(bright)
-%Vl(qs,64,180,400,24,-)
-%St(0,0,400,24,seekfill.bmp,backdrop,seekbk,slider,seekknob,setting,brightness)
+%Vl(qs,64,176,94,40,4)
+%?if(%St(brightness), =, 10)< |  >
+%?if(%St(brightness), =, 10)< |  >
+%T(0,0,-,-,setting_set,brightness,10)
+%Vl(b1on,64,183,94,27,2)
+%Vf(ffffff)
+%ac%?if(%St(brightness), =, 10)<10%%|10%% >
+%Vl(b1off,64,183,94,27,2)
+%Vf({fg})
+%ac%?if(%St(brightness), =, 10)<10%%|10%% >
+%Vl(qs,166,176,94,40,4)
+%?if(%St(brightness), =, 40)< |  >
+%?if(%St(brightness), =, 40)< |  >
+%T(0,0,-,-,setting_set,brightness,40)
+%Vl(b2on,166,183,94,27,2)
+%Vf(ffffff)
+%ac%?if(%St(brightness), =, 40)<40%%|40%% >
+%Vl(b2off,166,183,94,27,2)
+%Vf({fg})
+%ac%?if(%St(brightness), =, 40)<40%%|40%% >
+%Vl(qs,268,176,94,40,4)
+%?if(%St(brightness), =, 70)< |  >
+%?if(%St(brightness), =, 70)< |  >
+%T(0,0,-,-,setting_set,brightness,70)
+%Vl(b3on,268,183,94,27,2)
+%Vf(ffffff)
+%ac%?if(%St(brightness), =, 70)<70%%|70%% >
+%Vl(b3off,268,183,94,27,2)
+%Vf({fg})
+%ac%?if(%St(brightness), =, 70)<70%%|70%% >
+%Vl(qs,370,176,94,40,4)
+%?if(%St(brightness), =, 100)< |  >
+%?if(%St(brightness), =, 100)< |  >
+%T(0,0,-,-,setting_set,brightness,100)
+%Vl(b4on,370,183,94,27,2)
+%Vf(ffffff)
+%ac%?if(%St(brightness), =, 100)<100%%|100%% >
+%Vl(b4off,370,183,94,27,2)
+%Vf({fg})
+%ac%?if(%St(brightness), =, 100)<100%%|100%% >

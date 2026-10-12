@@ -31,6 +31,7 @@
 %xl(Bshadow,artshadow.bmp,44,48)
 %xl(Bwall,wall.bmp,0,0)
 %xl(Bcard,lcard.bmp,24,520)
+%xl(Bosd,osd.bmp,40,556)
 # Images for the foreground (positions are in their viewport)
 %xl(back,back.bmp,0,0)
 %xl(batt,batt.bmp,0,0,11)
@@ -46,7 +47,6 @@
 %xl(skip,skip.bmp,24,24,2)
 %xl(play,play.bmp,0,8,2)
 %xl(rep,rep.bmp,26,26,3)
-%xl(osd,osd.bmp,0,0)
 %xl(volf,volf.bmp,0,0,4)
 %xl(osdbk,osdbk.bmp,0,0)
 %xl(osdknob,osdknob.bmp,0,0)
@@ -65,7 +65,7 @@
 # ---------------- Backdrop layer ----------------
 # (one line, as in the base skin)
 %V(0,0,-,-,-)%VB
-%?mh<%xd(Bwall)%?if(%mp, >, 1)<%xd(Bcard)>|%dr(0,0,-,-,292829)%xd(Bshadow)>
+%?mh<%xd(Bwall)%?if(%mp, >, 1)<%xd(Bcard)>|%dr(0,0,-,-,292829)%xd(Bshadow)%?mv(1.5)<%xd(Bosd)|>>
 #
 # ---------------- Now playing ----------------
 %Vl(np,0,0,480,720,-)
@@ -138,8 +138,12 @@
 %T(0,0,-,-,repmode)
 #
 # ---------------- Volume pop-up ----------------
-%Vl(osd,40,556,400,64,-)
-%xd(osd)
+# The pill is on the backdrop, so the icon and bar clear to its colour. Blank
+# lines that change with the pop-up repaint the pill when it appears.
+%Vl(osd,40,556,400,64,4)
+%?mv(1.5)< |  >
+%?mv(1.5)< |  >
+%?mv(1.5)< |  >
 %Vl(osd,64,576,24,24,-)
 %?if(%pv, <, -60)<%xd(volf,1)|%?if(%pv, <, -35)<%xd(volf,2)|%?if(%pv, <, -15)<%xd(volf,3)|%xd(volf,4)>>>
 %Vl(osd,112,576,296,24,-)

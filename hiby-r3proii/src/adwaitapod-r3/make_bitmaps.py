@@ -287,6 +287,8 @@ def make_variant(rockbox, theme, v, icon):
     save("qsback.bmp", blend_on(Canvas(56, 56).paint(cov(56, 56, circle(28, 28, 28)), v["card"])
                                 .paint(centred(icon, "edit-undo", 24, (56, 56)), v["fg"]), v["bg"]))
     save32("bright.bmp", glyph("display-brightness", 24, v["fg"]))
+    save("bpill.bmp", stack(blend_on(Canvas(94, 40).paint(cov(94, 40, rrect(0, 0, 94, 40, 20)), c), v["bg"])
+                            for c in (v["track"], ACCENT)))
 
     # ---- thin sliders with a knob: seek bar and quick screen (400 px, on the
     # background), volume pop-up (296 px, on a card)
