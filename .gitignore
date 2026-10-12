@@ -5,3 +5,4 @@ reference/
 config.cfg
 .idea/
 CLAUDE.md
+__pycache__/
